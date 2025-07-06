@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sütlüzade Veri Kaydı</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9d71c;
+      color: #000;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-sizing: border-box;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 48px;
+      font-weight: bold;
+      font-family: 'Arial Black', sans-serif;
+      color: #000;
+      user-select: none;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+
+    input[type="number"],
+    input[type="date"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #999;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #000;
+      color: #f9d71c;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #333;
+    }
+
+    hr {
+      margin: 35px 0;
+      border: 1px solid #000;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    li {
+      background-color: #fff;
+      margin-bottom: 12px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+      color: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .veriMetni {
+      flex: 1;
+    }
+
+    .silBtn {
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    .silBtn:hover {
+      background-color: #cc0000;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">SÜTLÜZADE</div>
+  </header>
+
+  <label for="tarih">Tarih</label>
+  <input type="date" id="tarih" />
+
+  <label for="sutlac">Sütlaç Sayısı</label>
+  <input type="number" id="sutlac" min="0" placeholder="Sütlaç sayısını girin" />
+
+  <label for="bos">Boş Sayısı</label>
+  <input type="number" id="bos" min="0" placeholder="Boş sayısını girin" />
+
+  <label for="yer">Verilen Yer</label>
+  <input type="text" id="yer" placeholder="Verildiği yeri yazın" />
+
+  <button onclick="kaydet()">Kaydet</button>
+
+  <hr />
+
+  <h2>Kaydedilen Veriler (Bu Ay)</h2>
+  <ul id="veriListesi"></ul>
+
+  <script>
+    function getCurrentMonthKey() {
+      return new Date().toISOString().slice(0, 7);
+    }
+
+    function veriGetir() {
+      const key = getCurrentMonthKey();
+      return JSON.parse(localStorage.getItem(key)) || [];
+    }
+
+    function veriKaydet(veriler) {
+      const key = getCurrentMonthKey();
+      localStorage.setItem(key, JSON.stringify(veriler));
+    }
+
+    function listeGuncelle() {
+      const veriler = veriGetir();
+      const liste = document.getElementById("veriListesi");
+      liste.innerHTML = "";
+
+      if (veriler.length === 0) {
+        liste.innerHTML = "<li>Henüz veri yok.</li>";
+        return;
+      }
+
+      // Tarihe göre sırala (eskiden yeniye)
+      veriler.sort((a, b) => new Date(a.tarih) - new Date(b.tarih));
+
+      veriler.forEach((v, index) => {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.className = "veriMetni";
+        span.textContent = `${v.tarih} | Yer: ${v.yer} | Sütlaç: ${v.sutlac}, Boş: ${v.bos}`;
+
+        const btn = document.createElement("button");
+        btn.textContent = "Sil";
+        btn.className = "silBtn";
+        btn.onclick = () => {
+          silVeri(index);
+        };
+
+        li.appendChild(span);
+        li.appendChild(btn);
+        liste.appendChild(li);
+      });
+    }
+
+    function kaydet() {
+      const tarih = document.getElementById("tarih").value;
+      const sutlac = document.getElementById("sutlac").value;
+      const bos = document.getElementById("bos").value;
+      const yer = document.getElementById("yer").value.trim();
+
+      if (!tarih || sutlac === "" || bos === "" || yer === "") {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+      }
+
+      const yeniVeri = {
+        tarih,
+        sutlac: Number(sutlac),
+        bos: Number(bos),
+        yer
+      };
+
+      const veriler = veriGetir();
+      veriler.push(yeniVeri);
+      veriKaydet(veriler);
+
+      document.getElementById("tarih").value = "";
+      document.getElementById("sutlac").value = "";
+      document.getElementById("bos").value = "";
+      document.getElementById("yer").value = "";
+
+      listeGuncelle();
+    }
+
+    function silVeri(index) {
+      const veriler = veriGetir();
+      veriler.splice(index, 1);
+      veriKaydet(veriler);
+      listeGuncelle();
+    }
+
+    listeGuncelle();
+  </script>
+
+</body>
+</html>
