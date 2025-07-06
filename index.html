@@ -87,18 +87,23 @@
 
     .veriMetni {
       flex: 1;
+      padding-right: 10px;
+      white-space: pre-wrap;
+      font-size: 16px;
     }
 
     .silBtn {
       background-color: #ff4444;
       color: white;
       border: none;
-      border-radius: 3px;
+      border-radius: 4px;
       padding: 2px 6px;
+      font-size: 12px;
       cursor: pointer;
-      font-weight: bold;
       margin-left: 10px;
       flex-shrink: 0;
+      min-width: 30px;
+      text-align: center;
     }
 
     .silBtn:hover {
@@ -167,7 +172,7 @@
         span.textContent = `${v.tarih} | Yer: ${v.yer} | Sütlaç: ${v.sutlac}, Boş: ${v.bos}`;
 
         const btn = document.createElement("button");
-        btn.textContent = "Sil";
+        btn.textContent = "❌";
         btn.className = "silBtn";
         btn.onclick = () => {
           silVeri(index);
